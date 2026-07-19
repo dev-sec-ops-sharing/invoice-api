@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpException } from '@nestjs/common';
 import { HealthController } from './health.controller';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -37,8 +38,7 @@ describe('HealthController', () => {
     jest
       .spyOn(prisma, '$queryRaw')
       .mockRejectedValue(new Error('DB Connection Failed'));
-    const result = await controller.check();
-    expect(result.status).toBe('error');
-    expect(result.database).toBe('disconnected');
+    
+    await expect(controller.check()).rejects.toThrow(HttpException);
   });
 });
