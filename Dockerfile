@@ -1,5 +1,5 @@
 # ============ BUILD STAGE ============
-FROM node:20-alpine AS builder
+FROM node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN npm run build
 RUN npm prune --production
 
 # ============ PRODUCTION STAGE ============
-FROM node:20-alpine AS runner
+FROM node:26-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
