@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+echo "🧹 Formatting Code and Checking Syntax (Lint-staged)..."
+npx lint-staged
+
+echo "🔎 Checking TypeScript types..."
+npx tsc --noEmit
+
+if command -v gitleaks >/dev/null 2>&1; then
+    echo "🔍 Scanning for hardcoded secrets (Gitleaks)..."
+    gitleaks protect --staged -v
+else
+    echo "⚠️ Warning: gitleaks is not installed. Skipping local secret scan! (Recommended: brew install gitleaks)"
+fi

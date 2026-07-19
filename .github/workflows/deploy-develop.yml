@@ -1,0 +1,37 @@
+name: Deploy Develop
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-develop
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+  security-events: write
+
+jobs:
+  deploy-develop:
+    name: 🚀 Deploy Develop
+    uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/build-deploy.yml@main
+    with:
+      service-name: invoice-api-develop
+      secrets: 'DATABASE_URL=DATABASE_URL:latest'
+      environment: 'develop'
+      allow-unauthenticated: true
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+
+  dast:
+    name: 🌐 DAST Scan (Develop)
+    needs: [deploy-develop]
+    uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/dast-scan.yml@main
+    with:
+      target-url: ${{ needs.deploy-develop.outputs.service-url }}
+    secrets:
+      GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}

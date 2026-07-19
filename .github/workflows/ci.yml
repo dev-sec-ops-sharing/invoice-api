@@ -1,0 +1,120 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+  security-events: write
+  pull-requests: write
+
+jobs:
+  build-test:
+    name: 🏗️ Dry-run Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Test Build
+        run: npm run build
+
+  unit-test:
+    name: 🧪 Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Unit Tests
+        run: npm run test:cov
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  security:
+    name: 🔒 Security Scan
+    needs: [unit-test]
+    uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/security-scan.yml@main
+    with:
+      sonar-project-key: invoice-api
+      sonar-organization: dev-sec-ops-sharing
+      coverage-artifact: 'coverage-report'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+
+  lint:
+    name: 🧪 Lint & Type Check
+    uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/lint-typecheck.yml@main
+
+  e2e-test:
+    name: 🧪 Run E2E Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Database migrations (Test DB)
+        run: npx prisma db push
+        env:
+          DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_db
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_db
+
+  ai-review:
+    name: 🤖 AI Code Review
+    if: github.event_name == 'pull_request'
+    uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/ai-review.yml@main
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

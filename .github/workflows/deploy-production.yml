@@ -1,0 +1,28 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+  security-events: write
+
+jobs:
+  deploy-production:
+    name: 🚀 Deploy Production
+    uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/build-deploy.yml@main
+    with:
+      service-name: invoice-api
+      secrets: 'DATABASE_URL=DATABASE_URL:latest'
+      environment: 'production'
+      allow-unauthenticated: true
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
