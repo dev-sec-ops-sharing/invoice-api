@@ -3,6 +3,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.transaction.deleteMany({});
+  await prisma.invoice.deleteMany({});
+
   await prisma.invoice.createMany({
     data: [
       {
@@ -31,6 +34,45 @@ async function main() {
         status: 'OVERDUE',
         dueDate: new Date('2024-01-30'),
         description: 'UI/UX Design for mobile application',
+      },
+      {
+        number: 'INV-2024-004',
+        customer: 'GHI Technology',
+        amount: 12000000,
+        currency: 'VND',
+        status: 'DRAFT',
+        dueDate: new Date('2024-04-10'),
+        description: 'Cloud Infrastructure Setup',
+      },
+    ],
+  });
+
+  // Seed transactions
+  await prisma.transaction.createMany({
+    data: [
+      {
+        userId: 'usr_1',
+        senderId: 'usr_1',
+        receiverId: 'usr_2',
+        amount: 500000,
+      },
+      {
+        userId: 'usr_2',
+        senderId: 'usr_2',
+        receiverId: 'usr_3',
+        amount: 250000,
+      },
+      {
+        userId: 'usr_1',
+        senderId: 'usr_3',
+        receiverId: 'usr_1',
+        amount: 120000,
+      },
+      {
+        userId: 'usr_2',
+        senderId: 'usr_2',
+        receiverId: 'usr_1',
+        amount: 750000,
       },
     ],
   });
