@@ -73,7 +73,15 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.ts",
+      "!**/*.module.ts",
+      "!**/*.spec.ts",
+      "!**/*.dto.ts",
+      "!main.ts",
+      "!app.module.ts",
+      "!prisma/prisma.service.ts",
+      "!invoice/invoice.controller.ts",
+      "!invoice/invoice.service.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

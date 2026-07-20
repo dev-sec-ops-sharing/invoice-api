@@ -1,5 +1,7 @@
 # ============ BUILD STAGE ============
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends openssl
 
 WORKDIR /app
 
@@ -17,13 +19,15 @@ RUN npm run build
 RUN npm prune --production
 
 # ============ PRODUCTION STAGE ============
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
+
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 ENV NODE_ENV=production
 
 # Security: non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Copy only production artifacts
 COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
@@ -35,4 +39,4 @@ COPY --from=builder --chown=appuser:appgroup /app/prisma ./prisma
 USER appuser
 
 EXPOSE 8080
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
