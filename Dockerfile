@@ -1,5 +1,5 @@
 # ============ BUILD STAGE ============
-FROM node:20-slim AS builder
+FROM node:26-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends openssl
 
@@ -19,7 +19,7 @@ RUN npm run build
 RUN npm prune --production
 
 # ============ PRODUCTION STAGE ============
-FROM node:20-slim AS runner
+FROM node:26-slim AS runner
 
 RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
