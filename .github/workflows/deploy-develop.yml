@@ -11,6 +11,7 @@ permissions:
   contents: read
   id-token: write
   security-events: write
+  issues: write
 
 jobs:
   deploy-develop:

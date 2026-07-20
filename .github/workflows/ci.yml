@@ -32,6 +32,28 @@ jobs:
       - name: Test Build
         run: npm run build
 
+  trivy-image:
+    name: 🐳 Trivy Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker Image
+        run: docker build -t pr-image:${{ github.sha }} .
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'pr-image:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'trivy-image'
+
   unit-test:
     name: 🧪 Run Unit Tests
     runs-on: ubuntu-latest
