@@ -35,8 +35,8 @@ COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
 COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
 COPY --from=builder --chown=appuser:appgroup /app/prisma ./prisma
 
-# Switch to non-root
-USER appuser
+# Introduce Trivy IaC Flaw: Running as root
+USER root
 
 EXPOSE 8080
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
