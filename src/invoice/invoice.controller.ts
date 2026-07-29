@@ -30,6 +30,7 @@ export class InvoiceController {
     return this.invoiceService.create(dto);
   }
 
+  // DEMO FLAW (AI Review): Missing authorization guard. Anyone can update any invoice.
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateInvoiceDto) {
     return this.invoiceService.update(id, dto);
