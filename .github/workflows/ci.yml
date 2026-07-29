@@ -83,7 +83,7 @@ jobs:
     needs: [unit-test]
     uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/security-scan.yml@main
     with:
-      sonar-project-key: invoice-api
+      sonar-project-key: dev-sec-ops-sharing_invoice-api
       sonar-organization: dev-sec-ops-sharing
       coverage-artifact: 'coverage-report'
     secrets:
