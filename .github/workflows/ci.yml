@@ -49,6 +49,14 @@ jobs:
           tags: pr-image:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Cache Trivy Vulnerability Database
+        uses: actions/cache@v4
+        with:
+          path: .trivycache/
+          key: ${{ runner.os }}-trivy-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-
+            
       - name: Trivy Scan
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -57,6 +65,7 @@ jobs:
           output: 'trivy-image-results.sarif'
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
+          cache-dir: .trivycache/
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
