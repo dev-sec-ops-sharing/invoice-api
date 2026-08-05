@@ -34,5 +34,6 @@ jobs:
     uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/dast-scan.yml@main
     with:
       target-url: ${{ needs.deploy-develop.outputs.service-url }}
+      api-spec-url: ${{ needs.deploy-develop.outputs.service-url }}/api-docs-json
     secrets:
       GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
