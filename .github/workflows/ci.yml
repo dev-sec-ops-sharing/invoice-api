@@ -27,7 +27,6 @@ jobs:
 
   build-test:
     name: 🏗️ Dry-run Build
-    needs: [fast-security]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +42,6 @@ jobs:
 
   trivy-image:
     name: 🐳 Trivy Image Scan
-    needs: [fast-security]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +83,6 @@ jobs:
 
   unit-test:
     name: 🧪 Run Unit Tests
-    needs: [fast-security]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -122,12 +119,10 @@ jobs:
 
   lint:
     name: 🧪 Lint & Type Check
-    needs: [fast-security]
     uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/lint-typecheck.yml@main
 
   e2e-test:
     name: 🧪 Run E2E Tests
-    needs: [fast-security]
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -168,7 +163,6 @@ jobs:
 
   ai-review:
     name: 🤖 AI Code Review
-    needs: [fast-security]
     if: github.event_name == 'pull_request'
     uses: dev-sec-ops-sharing/devsecops-infra/.github/workflows/ai-review.yml@main
     secrets:
